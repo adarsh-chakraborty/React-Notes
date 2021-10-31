@@ -228,4 +228,49 @@ ctx.isLoggedIn,ctx.onLogout,ctx.onLogin to be used or passed to dom elements.
 ### useEffect
 - All the surrounding data which is not coming from the browser or from outside component function, must be added in dependency array.
 - So, all the data from inside your component function && is Used inside UseEffect must go in dependency array.
+***
+# forwardRef
+We cannot pass a ref to a function, It would throw an Error i.e. Function component cannot be given refs.
+We need to use forwardRef to access functions/variables outside of a component using refs. (Not recommended)
 
+In the component itself, we need to import an hook. i.e `useImperativeHandle` from `react`. 
+
+It means `not by state management` but directly managing it.
+
+
+Call the useImperativeHandle and pass 2 things.
+
+1. Component ref 
+2. A function that should return an object.
+    It contains the data which we will be able to use from outside.
+
+```javascript
+    // A Component which has to be exported, forwarded and should accept a ref.
+   // Wrap the component in a special react function that returns a component. React.forwardRef()
+    
+    const Input = React.forwardRef((props, ref) => {
+    useImperativeHandle(ref,() => {
+        // returns an object
+        return {
+            // any key; internal function which can be called from outside.
+            focus: activate,
+        }
+    });
+
+    });
+    
+    export default Input;
+```
+
+- Forward ref returns a react component.
+- We can only access the content which is exposed through useImperativeHandle.
+- Now we can simply useRef and access functions, components directly.
+
+    ```javascript
+    
+    const someRef = useRef();
+
+    someRef.current.focus(); // is accessible cuz it's exposed.
+    return <someComponent ref={inputRef} />
+    
+    ```
