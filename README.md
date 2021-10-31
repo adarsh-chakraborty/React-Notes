@@ -3,7 +3,7 @@
 ## useState
 **Syntax:**
 ```javascript
-const [stateName, setStateFn] = useState(<initialState>);
+const [stateName, setStateFn] = useState("initialState");
 ```
 Returns an array with exactly two values, one is the state and a function to set the state, respectively. 
 ## useReducer
@@ -139,3 +139,93 @@ There are **2 ways** we can consume the context api.
         // Consume the ctx as you like. ctx.isLoggedIn, ctx.onLogout xD
    ```
 </details>
+
+***
+
+### Custom Context Component
+  
+
+  ```javascript
+import React from 'react';
+
+const AuthContext = React.createComponent({isLoggedIn: false, onLogout: () => {}, onLogin: () => {}});
+
+// Create a component in the context file which returns AuthContext.Provider
+
+export const AuthContextProvider = (props) => {
+    return (
+        <AuthContext.Provider>
+        {props.children}
+        </AuthContext.Provider>
+    )
+
+}
+
+
+export default AuthContext;
+  ```
+  **Now that we have a component in the context, we can create a state to manage the logic.**
+
+  ```javascript
+export const AuthContextProvider = (props) => {
+
+    const [isLoggedIn,setIsLoggedIn] = useState(false);
+
+    const logoutHandler = () => {
+        setIsLoggedIn(false);
+    }
+
+     const loginHandler = () => {
+        setIsLoggedIn(true);
+    }
+    return (
+        <AuthContext.Provider value={{
+            isLoggedIn: isLoggedIn, // pass state
+            onLogout: logoutHandler, // pass pointer
+            onLogin: loginHandler,
+            }}>
+        {props.children}
+        </AuthContext.Provider>
+    )
+
+}
+
+export default AuthContext;
+  ```
+Wrap the components inside our new AuthContextProvider component.
+  ```javascript
+  import {AuthContextProvider} from './context/authContext.js'
+
+// in a component, probably root
+  return(<AuthContextProvider><OtherComponents/></AuthContextProvider>);
+  ```
+  Now we can import the context file in any component (that is wrapped inside our custom component),
+  and access those function using
+
+  ```javascript
+  import {useContext} from 'react';
+  import AuthContext from '../context/authContext.js';
+
+    // in a component
+    const ctx = useContext(AuthContext);
+  ```
+
+Now all variables & functions are accessable on ctx.
+ctx.isLoggedIn,ctx.onLogout,ctx.onLogin to be used or passed to dom elements.
+
+### Limitations of Context API
+
+- Not Optimized for high frequency changes. (Multiple times per second)
+- It's shouldn't be replaced with all components.
+
+***
+
+# Rules of using React Hooks
+
+### All Hooks
+- React hooks can only be called inside React function component.
+- React hooks must be called in top level functional component or custom react hook function.
+### useEffect
+- All the surrounding data which is not coming from the browser or from outside component function, must be added in dependency array.
+- So, all the data from inside your component function && is Used inside UseEffect must go in dependency array.
+
