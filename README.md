@@ -274,3 +274,47 @@ Call the useImperativeHandle and pass 2 things.
     return <someComponent ref={inputRef} />
     
     ```
+***
+
+# React Behind the Scenes
+
+Let's see how react works behind the scene.
+
+     React is a javascript library for building user Interfaces.
+
+### TLDR: React -> ReactDOM -> Browser
+
+React is concerned about components. (State,Props or Context)
+It doesn't care about the html and what user sees in the Browser.
+
+React uses Virtual DOM, It only sends changes the between VirtualDOM Snapshot & Real DOM,and does not re-render the entire DOM, that's make it fast and performance efficient.
+
+Child components gets re-evaluated with parent state change, as child component is basically a function called in a return statement in parent component, but that does not mean the realdom is touched.
+
+**Components:** 
+- Re-evaluated whenever props, state or context changes.
+- React executes component functions.
+
+**Real DOM:** 
+- Changes to the real DOM are only made for differences between evaluations.
+
+TLDR:
+- If Parent component is re-executed, all it's child component will get re-evaluated.
+
+### So that's alot of function calls for a application, mostly waste.
+
+To tell react to re-evaluate component only if the prop changed, we can use `memo`.
+
+**Useage**
+```javascript
+// Any functional component.
+const Component2 = (props) => {};
+// we export the component with React.memo method.
+export default React.memo(Component2);
+```
+
+Memo saves previous props values and compares it with the new props.
+Comes at a cost, isn't it. So use we have to use it wisely.
+
+Till now, It will work for primitive types but Arrays & Objects would be re-created everytime.
+
