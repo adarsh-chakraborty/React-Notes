@@ -318,3 +318,53 @@ Comes at a cost, isn't it. So use we have to use it wisely.
 
 Till now, It will work for primitive types but Arrays & Objects would be re-created everytime.
 
+# useCallback
+
+To make it work for Objects, We have to use `useCallback` hook.
+
+`useCallback` allows us to store a function across components execution, so it doesn't get recreated.
+
+It will save a function of our choice and always re-use that same function among component re-evaluation.
+
+**Useage:** Using it is simple, just wrap the function we wanna save, with it.
+```javascript
+const myFunctionName = () => {
+    // Do something;
+}
+
+```
+
+will be written like...
+
+```javascript
+import {useCallback} from 'react';
+
+const myFunctionName = useCallback(() => {
+    // Do something;
+},[]); 
+// [] is array of dependencies.
+// Anything from surrounding environment, has to be passed in dependencies.
+// e.g. state, props or context should be specified here.
+
+```
+
+### How does it work?
+
+Functions in javascript are closures, that means when a function is created it looks all it's surrounding variables to be used in functions.
+
+But that is a problem in our case, as we need latest values in our functions, hence they are added in the dependencies, which basically means whenever the dependencies change, the function is recreated and the newly created latest function is stored for further use. If the dependencies doesn't change, the function too doesn't get recreated.
+
+# Summary
+
+- In react apps, we work with functional components, that has one job is to return html from jsx.
+- We work with props, state and context to make changes in data and parts of the application.
+- Whenever the state changed, the functional component is executed again. 
+- React takes the result of this latest evaluation and compares it with last snapshot and forwards it to ReactDOM.
+- And the Only changes gets added in the Real DOM.
+- In the process, many components gets re-executed unnecessarly.
+- To Avoid such unnecessarly executed, we use `React.memo` to tell react that don't re-executed this component unless the props changed.
+- However, While it will work for primitive data tyes, It won't work for Reference data types. e.g. Objects,Functions,Arrays.
+- So To make it work with Reference data types, we use `useCallback` hook to store the function and not re-create it as long as certain dependencies doesn't change.
+- And With that, React.memo would be able to tell if the function has changed or not, and will prevent unnecessary executions.
+
+
