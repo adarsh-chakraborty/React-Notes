@@ -367,4 +367,21 @@ But that is a problem in our case, as we need latest values in our functions, he
 - So To make it work with Reference data types, we use `useCallback` hook to store the function and not re-create it as long as certain dependencies doesn't change.
 - And With that, React.memo would be able to tell if the function has changed or not, and will prevent unnecessary executions.
 
+***
+# useMemo
 
+We have `useCallback` to store functions that only recreate them when some input changed.
+
+We have `useMemo` that allows us to store all other kind of data.
+
+`useMemo` accepts two arguements.
+
+* Function, However the function itself won't be stored but the value it returned. 
+* Dependency Array.
+
+```javascript
+import {useMemo} from 'react';
+
+const sortedData = useMemo();
+
+```
