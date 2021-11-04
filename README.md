@@ -385,3 +385,204 @@ import {useMemo} from 'react';
 const sortedData = useMemo();
 
 ```
+***
+# Connecting to a Database
+
+**TLDR: You don't.**
+
+This is by far the most awaited section for me to learn, Sending HTTP Requests is my favorite thing to do in applications. I just love working with APIs.
+
+In my personal projects, I will undoubtly use `reactQuery` library to send http requests, because I am amazed by the simplicity and the features that it provides.
+
+Here we will use normal `fetch api` which is available in all modern browsers now a days. Alternative methods to send http requests could be `Ajax` (why) and `Axios` library.
+
+##  How to Not Connect to a Database.
+
+In general, browser side apps be it react or any other client side app, should never talk to a database directly.
+
+Because it is highly insecure, and bad practice, Javascript code is exposed to the end user hence your database credentials would be exposed with it.
+
+#### React --> Database ✘
+#### React --> [ API ] -> Database ✓
+
+* **API stands for Application Programming Interface.**
+
+### Sending a GET Request.
+
+```javascript
+// A Regular javascript function
+
+function fetchBooksHandler() {
+    // Using fetch API. 
+    // Default method is GET so we don't set one here.
+    // fetch returns a promise that will eventually yield data.
+
+    fetch('http://adarsh.gq/library/books')
+    .then(response => {
+        // This as well returns promise.
+        return response.json();
+    })
+    .then(data => {
+        // Do something with data, transform it (If required)
+        const transformedBooks = data.map((book) => {
+            return {
+                newKeys: book.someKey,
+                someMoreKeys: book.someData
+            }
+        });
+        // Store it some state.
+        setBookState(transformedBooks);
+    });
+}
+```
+
+- Same thing with async await.
+
+```javascript
+async function fetchBooksHandler() {
+
+    const res = await fetch('http://adarsh.gq/library/books')
+    const data = await res.json();
+
+    const transformedBooks = data.map((book) => {
+            return {
+                newKeys: book.someKey,
+                someMoreKeys: book.someData
+            }
+        });
+
+    setBookState(transformedBooks);
+}
+```
+
+# Loading State
+
+We can manage a loading state in react to show a loading spinner or text to the user, while the browser fetches data from an API.
+
+```javascript
+const SomeComponent = (props) => {
+    const [books,setBookState] = useState([]);
+    const [isLoading,setIsLoading] = useState([]);
+
+    async function fetchBooksHandler() {
+        setIsLoading(true);
+        // after fetch ...
+             ... setIsLoading(false);
+    }
+
+    return (
+        <>
+        // Conditional Rendering. 
+        // Not Loading + Has atleast 1 Movie then Show Book Component
+        {!isLoading && books.length > 0 && <SomeBookComponent />}
+        {!isLoading && books.length == 0 && <p>Some fall back text, No books found etc<p>}
+        // .. Loading
+        {isLoading && <SomeSpinnerComponent />}
+        </>
+    )
+
+}
+```
+
+# Handling HTTP errors
+
+Not always we get what we want in life (lol), same applies with http requests.
+
+Catch block of fetch API will catch erros If you are unable to send a request technically, for example Network Error. (No Internet)
+
+But If you could technically send a request to a server, It's considered as valid request even tho the response has error status code.
+
+Server can send various type of responses.
+- 2XX - OK Sucesss
+- 3XX - Redirections
+- 4XX - Client Errors (Forbiddon, Bad Req)
+- 5XX - Server Errors (Server failure or server side code failure)
+
+So, you can discriminate these errors in `response.ok` object and manage a error state. 
+
+```javascript
+const SomeComponent = (props) => {
+    const [books,setBookState] = useState([]);
+    const [isLoading,setIsLoading] = useState([]);
+    const [error,setError] = useState(null);
+
+    async function fetchBooksHandler() {
+        setLoading(true);
+        setError(null);
+
+        try{
+
+            const res = await fetch('http://adarsh.gq/library/books')
+            // Check status code
+            if(res.ok){
+                // stop execution and go to catch block
+                throw new Error("Something went wrong");
+            }
+
+            return await res.json();
+
+        }catch(e){
+            setError(e.message);
+        }
+        // Set loading to false either way
+        setIsLoading(false);
+     
+    }
+
+    return (
+        <>
+        // Conditional Rendering. 
+        // Not Loading + Has atleast 1 Movie then Show Book Component
+        {!isLoading && books.length > 0 && <SomeBookComponent />}
+        // If not loading, and we have no movies and has no error then show fallback text
+        {!isLoading && books.length == 0 && !error && <p>Some fall back text if not loading,no errors, No books found etc<p>}
+        // .. Loading
+        {isLoading && <SomeSpinnerComponent />}
+        // If not loading and we have a error then display it.
+        {!isLoading && error && <SomeSpinnerComponent />}
+        </>
+    )
+
+}
+```
+
+### Using useEffect to fetch data.
+
+```javascript
+import {useEffect, useCallback} from 'react';
+
+const SomeComponent = (props) => {
+    const [books,setBookState] = useState([]);
+    const [isLoading,setIsLoading] = useState([]);
+    const [error,setError] = useState(null);
+
+    const fetchBooksHandler = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+
+        try{
+
+            const res = await fetch('http://adarsh.gq/library/books')
+            // Check status code
+            if(res.ok){
+                // stop execution and go to catch block
+                throw new Error("Something went wrong");
+            }
+
+            return await res.json();
+
+        }catch(e){
+            setError(e.message);
+        }
+        // Set loading to false either way
+        setIsLoading(false);
+     
+    },[]); // No dependency cuz fetch is global, and set functions never changes.
+
+    useEffect(() => {
+        // Calling the function as soon as the component loads.
+        fetchMoviesHandler();
+    },[fetchMoviesHandler]);
+
+}
+```
