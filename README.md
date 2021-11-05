@@ -586,3 +586,48 @@ const SomeComponent = (props) => {
 
 }
 ```
+***
+# Custom Hooks
+
+- Custom hooks in the end are just functions but they are function that can contain stateful logic.
+
+- Unlike regular functions, Custom hooks can use other react hooks.
+
+- It's simple mechanism of re-using logic.
+
+# How to build custom hooks
+
+- Create a new folder `hooks` probably.
+- Create a new .js file. `kebab-case` naming convention is preferred.
+- Export a function, function name must start with `use`. e.g. `useCounter`
+- If custom hooks uses state, effects, it will be tied to the component which uses it.
+- Which means every component will have their own state and useEffect, and so data is not shared only logic is.
+- We can configure custom hooks, Make it accept parameters just like built-in hooks.
+- You can also receive an entire function in arguement and execute it. `setCounter(counterUpdateFn())`
+
+
+
+```javascript
+const useCounter = (forwards = true) => { 
+    // Receive forward as arguement to configure hook. Default is true
+    // Do something with state maybe. 
+    const [count,setCount] = useState(0)
+    // Add the parameter (if any) in useEffect dependency.
+    useEffect(() => {
+        const interval = setInterval(() => {
+        if(forwards)
+             setCounter((prevCounter) => prevCounter+1);
+        else 
+            setCounter((prevCounter) => prevCounter-1);
+        }, 1000);
+
+        return () => clearInterval(interval);
+        
+    },[forwards]);
+
+    return count;
+
+}
+
+export default useCounter;
+```
