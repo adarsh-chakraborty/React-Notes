@@ -631,3 +631,84 @@ const useCounter = (forwards = true) => {
 
 export default useCounter;
 ```
+***
+### More Realistic usage of custom hooks.
+
+We can outsource the logic or parts of the logic to fetch data from API or submit data to an api.
+
+Let's goooo
+
+- Create a `hooks` folder.
+- Create a new js file, `kebab-case` naming convention is prefered.
+- Export a function, function name **must** start with `use`. e.g. `useHttp`
+
+
+```javascript
+import {useState,useCallback} from 'react';
+
+const useHttp = () => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const sendRequest = useCallback(async (reqConfig,callbackFn) => {
+        setIsLoading(true);
+        setError(null);
+
+        try{
+            const response = await fetch(`http://adarsh.gq/library`, { 
+                method: reqConfig.method ? reqConfig.method : 'GET',
+                headers: reqConfig.headers ? reqConfig.headers : {},
+                body: reqConfig.body ? JSON.stringify(reqConfig.body) : null
+            });
+
+            if(!response.ok){
+                throw new Error("Internal Server Error, try again!");
+            }
+
+            const data = await response.json();
+            // Send the data back
+            callbackFn(data);
+
+        }catch(e){
+            setError(e.message || "Internal Server Error, Try again!");
+        }
+         setIsLoading(false);
+         
+    },[]); // No External Dependency.
+    // Needs no dependency bcuz all the data it's working on is received in parameter.
+
+    // Return so we can have access to these functions from components.
+    return {
+        isLoading: isLoading,
+        error: error,
+        sendRequest: sendRequest,
+    }
+};
+
+export default useHttp;
+```
+
+Now that we have configured our very own custom hook, Let's use it in our components.
+
+```javascript
+import useHttp from '../hooks/use-http';
+
+const App(){
+   
+    // Needs arguements
+    // showBooks as callbackFn
+    const {isLoading, error, sendRequest} = useHttp();
+
+     useEffect (() => {
+        const showBooks = (bookObj) => {
+            // do something with bookObj.
+            // setState, and SetState won't change so need to add it in dependency.
+        };
+
+        sendRequest({method: 'GET'},showBooks);
+     },[sendRequest]); // showBooks is not an External Dependency.
+
+     // sendReq is defined inside App() so it should be added as dependency.
+    
+}
+```
