@@ -712,3 +712,45 @@ const App(){
     
 }
 ```
+***
+# Forms and User Input
+### Form Validation
+Forms might seem simple and trivial but they are not, Forms can actually be complex from a developer's point of view because they can consume a broad variety of states.
+
+### When can we validate
+
+- When form is submitted.
+- When a Input lost focus.
+- On Every Keystroke.
+
+### First step: Fetch Input value
+
+AFAIK, We can get user Input in two ways. Both have different use-cases.
+
+- Manage a state on every keystroke.
+- Use a ref to get Input when required.
+
+If the Input value is being manipulated, We should consider using state because **React should be the thing manipulating the DOM** and not us. So it's not a good practice to manipulate DOM directly.
+
+### Step Two: Adding Basic Validation
+
+- Checking if the enteredName is empty.
+
+```javascript
+if(enteredName.trim() === ''){
+    return;
+}
+```
+
+### Step Three: User Feedback
+
+We can feed user some information about what's wrong with his entered data.
+
+After Checking if the input is valid, we can provide some feedback based on it.
+```javascript
+const enteredNameIsValid = enteredName.trim() !== ''
+const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
+
+```
+
+
