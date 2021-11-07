@@ -752,5 +752,6 @@ const enteredNameIsValid = enteredName.trim() !== ''
 const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
 
 ```
-
+***
+# Redux
 
