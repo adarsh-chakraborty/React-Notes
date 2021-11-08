@@ -883,4 +883,90 @@ const handlerWithPayload = () => {
 
 // Now we can pass the handler to any prop whereever needed.
 ```
+***
+# Redux Toolkit
+
+Redux toolkit helps us to use Redux in such a way where we don't have to worry about accidently mutating our state, making typos in identifiers or even making clashing identifiers suppose if many developers are working on same project.
+
+To get started with Redux toolkit, we need to install it.
+#### Install
+```
+npm i @reduxjs/toolkit 
+```
+
+#### Redux is included in toolkit, so we can uninstall redux entry from package.json
+
+**How to use Redux toolkit**
+
+index.js
+```javascript
+
+import { createSlice, configureStore } from '@reduxjs/toolkit';
+
+const initialState = { counter: 0, showCounter: true };
+
+// Needs object as arguement to prepare a slice of global state.
+const counterSlice = createSlice({
+    name: 'counter', // identifier
+    initialState: initialState,
+    reducers: {
+        increment(state) {
+            // Mutation is allowed here because It will internally create a new state and override it.
+            state.counter++;
+         },
+        decrement(state) { 
+            state.counter--;
+        },
+        increase(state, action) {
+            // with payload. (payload key is required, key is not upto us. It is set by toolkit)
+            state.counter = state.counter + action.payload;
+         },
+        toggleCounter(state) {
+            state.showCounter = !state.showCounter;
+        }
+    }
+
+})
+
+
+// not using createStore but configureStore.
+// configure store returns a store and needs a object
+const store = configureStore({
+    // 1 reducer is required for global state.
+    reducer: counterSlice.reducer,
+    /*
+    If we have multiple slices, pass an object with custom keys
+    reducer: {counter: counterSlice.reducer, something: somethingSlice.reducer }
+    It will be merged into one reducer automatically by toolkit
+    */
+});
+
+export default store;
+export const counterActions = counterSlice.actions; // has all the reducer actions
+```
+
+#### Using it in our components
+
+```javascript
+import {useSelector, useDispatch} from 'react-redux';
+import {counterActions} from '../store/index.js';
+
+// In a component
+const dispatch = useDispatch();
+const counter = useSelector(state => state.counter);
+
+const incrementHandler = () => {
+    // That's how we dispatch actions
+    dispatch(counterActions.increment());
+}
+
+// Dispatching with payload.
+const increaseHandler = () => {
+    // That's how we dispatch actions
+    let amount = 5;
+    dispatch(counterActions.increment(amount)); // Pass the payload.
+    // It adds the payload to the payload key so we can access action.payload in our reducer methods.
+    // payload key is not upto us, It is required.
+}
+```
 
