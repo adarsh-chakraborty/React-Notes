@@ -755,3 +755,132 @@ const nameInputIsInvalid = !enteredNameIsValid && enteredNameTouched;
 ***
 # Redux
 
+Redux is a third party state management library for cross component or app wide state.
+
+It helps us to manage state that affects our application app wide or cross component.
+
+We can split the defination of state in 3 main kind of state.
+
+Colons can be used to align columns.
+
+| Local State | Cross-Component State | App-Wide State  |
+| ------------- |:-------------:| -----:|
+| State that belongs to a single component.| State that effects multiple components. | State that effects the entire app. (All components) |
+| E.g. Listening to user Input using  states.| E.g. Open/Close state of a modal overlay.      |   E.g. user authentication |
+| *Managed by useState() or useReducer()* | *Managed by useState() or useReducer() with props* (Prop chain/drilling)     |  *Requires prop chain/drilling* |
+
+
+React context is a built-in feature of React, to share data across app. Redux solves the same problem, It manage cross components or app-wide states.
+
+## Why Redux
+
+- Managing context is quite complex, we can endup with nested JSX context providers.
+- If not that we can surely endup with a large context that cares about everything (Auth, Cart, User etc).
+- Another potential disadvantages is performance, It's not optimized for high frequency changes. (e.g. Input)
+
+### How Redux works
+
+Redux is all about one central data store (state) for the entire application.
+In this one store (state) we will store everything (auth,user).
+
+**Central Data Store --  (subscribe) --> components**
+
+If the data changes, Central Data stores notifies the component so it can react accordingly.
+
+#### So how to manipulate data in the store
+
+**Important Rule:** Components **never directly** changes the data in the store, Instead we use reducer functions.
+
+**Reducer functions:** This reducer is not that useReducer() hook, reducer function in-general is a concept of functions that takes some input and transform it, e.g. Reduce a list of number to sum of number.
+Reducer function is a standard javascript function, It will receive 2 parameter and produce a new state.
+
+ `(OldState, Action) => NewState`
+
+and, there should be no sideeffects inside reducer function. (Local Storage/Http fetch)
+
+**Action:** Components dispatches action, which is forwarded to reducer functions.
+
+#### Components --(dispatch)--> Action --(Forwarded to)--> Reducer Function
+
+#### Installing Redux
+```
+npm i redux react-redux 
+```
+
+- Create a new folder in src. `store` is prefered.
+- Create a new .js file. `index.js`
+- Create a store in store/index.js.
+
+```javascript
+// index.js
+import { createStore } from 'redux';
+
+const counterReducer = (state = {counter: 0}, action) => {
+    if (action.type === 'inc') {
+        return { counter: state.counter + 1 };
+    }
+    if (action.type === 'dec') {
+        return { counter: state.counter - 1 };
+    }
+    if (action.type === 'custom') {
+        // get payload from action
+        return { counter: state.counter + action.payload };
+    }
+    return state; // Return Initial state.
+}
+
+const store = createStore(counterReducer); // needs a reducerFn.
+
+export default store;
+```
+
+- Provide the store to our react application, for that go to the highest level possible in our app. (App Root Component)
+
+```javascript
+// import component from react-redux
+import {Provider} from 'react-redux';
+
+// Wrap entire app inside the provider component & provide store.
+ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));
+```
+
+Now that we have provided the store and the component has access to it, but they can't dispatch any action or subscribe yet, so
+
+```javascript
+import {useSelector} from 'react-redux';
+
+// in a component
+const counter = useSelector(state => state.counter); 
+// We need to pass a fn to useSelector, which will be executed by react-redux.
+// It determines which piece of data we wanna extract from store.
+// useSelector allows us to get a slice of the state from central store.
+// useSelector also automatically subscribes to store for this component so we get latest counter everytime counter changes in redux store, automatically :O
+// So basically, it re-evaluates the component for you, and if component is unmounted, it will automatically clear the subscription as well.
+
+// use the counter in any JSX
+return (<p>{counter}</p>)
+```
+
+#### Dispatching actions
+
+We need to import another hook for that, `useDispatch` which doesn't need any arguements but returns a dispatchFn which we can execute.
+
+```javascript
+import {useDispatch} from 'react-redux';
+const dispatch = useDispatch();
+
+const incrementHandler = () => {
+    dispatch({type: 'inc'}); // identifier
+}
+
+const decrementHandler = () => {
+    dispatch({type: 'dec'});
+}
+
+const handlerWithPayload = () => {
+    dispatch({type: 'custom', payload: 5});
+}
+
+// Now we can pass the handler to any prop whereever needed.
+```
+
