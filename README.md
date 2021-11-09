@@ -953,7 +953,7 @@ import {counterActions} from '../store/index.js';
 
 // In a component
 const dispatch = useDispatch();
-const counter = useSelector(state => state.counter);
+const counter = useSelector(state => state.counter); 
 
 const incrementHandler = () => {
     // That's how we dispatch actions
@@ -969,4 +969,33 @@ const increaseHandler = () => {
     // payload key is not upto us, It is required.
 }
 ```
+***
+#### Manaing multiple Slices & Splitting code
+
+```javascript
+// index.js file
+const store = configureStore({
+	reducer: { counter: counterSlice.reducer, authentication: authSlice.reducer }
+});
+```
+Now we can use these keys in useSelector, to selector these slices.
+
+```javascript
+const isAuth = useSelector((state) => state.authentication.isAuthenticated);
+// where authentication is the key we used in reducer above.
+```
+
+#### Spliting our code
+
+It's better to keep different slices in their own files, We can split our logic to different files and export them by default.
+
+- Create a new file. `counter-slice.js`
+- Move the initialState and counterSlice to that file.
+- import the `{createSlice}` in the new file to use it.
+- export default the counterSlice.reducer, we need only reducer in other file.
+- export the the slice .actions. e.g `export const counterActions = counterSlice.actions`
+- We can remove `{createSlice}` from index.js file.
+- import all the slices from their respective files
+- pass those imports to configureStore with custom keys
+- Here we don't need to put .reducer because we only exported .reducer from the file.
 
