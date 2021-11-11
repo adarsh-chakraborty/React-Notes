@@ -999,3 +999,24 @@ It's better to keep different slices in their own files, We can split our logic 
 - pass those imports to configureStore with custom keys
 - Here we don't need to put .reducer because we only exported .reducer from the file.
 
+***
+# Advance Redux
+
+As we know, Reducer functions must be pure, side-effects free and synchronous functions. This is not Redux specific but general reducer concept. useReducer also works in the same way.
+
+So the reducers must return same kind of output, no side effects like A-Sync functions that blocks it, No code of that kind should be included in redux.
+
+`Input (OldState,Action) => newState`
+
+So, now the question is where should we put our side-effects? Because we have to dispatch actions that can send a http request.
+
+We have two possible places where we can put our side-effects.
+
+- In the component, dispatch the Fn only when the sideEffect is done.
+- We write our own action creator functions instead of using default provided by redux toolkit.
+
+## Refresher Practice
+
+- Adding Redux to our project, again.
+
+
