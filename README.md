@@ -1019,4 +1019,60 @@ We have two possible places where we can put our side-effects.
 
 - Adding Redux to our project, again.
 
+Install Redux toolkit library
+```
+npm i @reduxjs/toolkit react-redux
+```
+
+- Create a store folder, and index js file.
+- Create files for slices.
+
+```javascript
+// demo slice
+import { createSlice } from '@reduxjs/toolkit';
+
+const uiSlice = createSlice({
+	name: 'ui',
+	initialState: { cartIsVisible: false },
+	reducers: {
+		toggle(state) {
+			state.cartIsVisible = !state.cartIsVisible;
+		}
+	}
+});
+
+export const uiActions = uiSlice.actions;
+export default uiSlice;
+
+```
+
+#### Store Index file
+
+```javascript
+import { configureStore } from '@reduxjs/toolkit';
+import uiSlice from './ui.slice';
+
+const store = configureStore({
+	reducer: { ui: uiSlice.reducer }
+});
+
+export default store;
+
+```
+
+- Now that we have store, we need to provide it to our app.
+- So import `{ Provider }` from `react-redux`
+- import the store index js file. `import store from './store/index.js'
+- and, Wrap the entire app with Provider and provide the store to it.
+
+```javascript
+ReactDOM.render(
+	<Provider store={store}>
+	<App />
+	</Provider>,
+	document.getElementById('root')
+);
+```
+
+- Now that we have redux set-up, now we have to utilize it in our components.
 
