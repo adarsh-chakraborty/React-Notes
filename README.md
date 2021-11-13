@@ -1076,3 +1076,151 @@ ReactDOM.render(
 
 - Now that we have redux set-up, now we have to utilize it in our components.
 
+As we know, there are two ways to send http requests while working with redux.
+
+**Send the Http request in the component**
+
+So, in any component we can use `useEffect` hook, pull out a data from store and watch the changes. so wheneever any data changed in the store, we can send a http request.
+
+```javascript
+let isInitial = true;
+
+function App() {
+	const showCart = useSelector((state) => state.ui.cartIsVisible);
+	const cart = useSelector((state) => state.cart);
+
+	useEffect(() => {
+		if(isInitial){
+            isInitial = false; 
+            return;
+        }
+        // Doesn't send the data on component load.
+        fetch(
+			'https://fir-demo-a3f3e-default-rtdb.asia-southeast1.firebasedatabase.app/usercart.json',
+			{
+				method: 'PUT',
+				body: JSON.stringify(cart)
+			}
+		);
+	}, [cart]);
+	return (
+		<Layout>
+			{showCart && <Cart />}
+			<Products />
+		</Layout>
+	);
+}
+```
+
+- Alternative Method, Creating our own Custom Action Creator Thunk.
+
+A thunk is simply a function that delays an action until later.
+
+A Action creator function that does **not** return the action itself but another function which eventually returns the action.
+
+How to write our own Custom action creator:
+
+- Go to the end of the slice file.
+- Create a function which returns an action object with `type` and `payload`.
+
+```javascript
+// This is a normal action which is created automatically.
+// We don't create this on our own, It is created by Toolkit automatically.
+const sendCartDataToFirebase = (data) => {
+	return {type '', payload: ...};
+}
+
+// This is custom action creators that returns another function.
+const sendCartDataToFirebase = (data) => {
+	
+    return (dispatchFn) => {
+        dispatchFn();
+    };
+}
+```
+
+
+- Export a custom function which returns another function
+
+```javascript
+import { uiActions } from './ui.slice';
+
+export const sendCartDataToFirebase = (cart) => {
+	// 2 paramters to note.
+	// Parent Fn receives arguement.
+	// Return Function receives dispatch function so we can dispatch again.
+
+	// This parent Fn Receives data in arguement,
+	// does nothing but return another function which can be Async!
+	return async (dispatch) => {
+		// Receives dispatch function in arguement
+		dispatch(
+			uiActions.showNotification({
+				status: 'pending',
+				title: 'Sending...',
+				message: 'Updating cart...'
+			})
+		);
+
+		const sendReq = async () => {
+			const res = await fetch(
+				'https://fir-demo-a3f3e-default-rtdb.asia-southeast1.firebasedatabase.app/usercart.json',
+				{
+					method: 'PUT',
+					body: JSON.stringify(cart)
+				}
+			);
+
+			if (!res.ok) {
+				throw new Error('Cart was not updated, try again in some time!');
+			}
+		};
+
+		try {
+			await sendReq();
+			dispatch(
+				uiActions.showNotification({
+					status: 'success',
+					title: 'Success!',
+					message: 'Cart updated!'
+				})
+			);
+		} catch (e) {
+			dispatch(
+				uiActions.showNotification({
+					status: 'error',
+					title: 'Error!',
+					message: e.message
+				})
+			);
+		}
+	};
+};
+
+```
+
+Now we can simply execute the function from any component, (Inside useEffect for best practice)
+
+```javascript
+// In a component.
+import { sendCartDataToFirebase } from './store/cart.slice';
+let isInitial=true;
+
+const App = () => {
+    // Some state managed data
+    const cart = useSelector(state => state.ui.cart); 
+
+    useEffect(() => {
+            if (isInitial) {
+                isInitial = false;
+                return;
+            }
+
+            // Dispatch the custom action creator, pass any data you want.
+            dispatch(sendCartDataToFirebase(cart));
+        }, [cart, dispatch]);
+}    
+```
+
+
+
