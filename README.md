@@ -1116,12 +1116,14 @@ function App() {
 
 A thunk is simply a function that delays an action until later.
 
-A Action creator function that does **not** return the action itself but another function which eventually returns the action.
+A Action creator function that does **not** return the action itself but another function which eventually returns the action with `type` and `payload`.
 
 How to write our own Custom action creator:
 
 - Go to the end of the slice file.
-- Create a function which returns an action object with `type` and `payload`.
+- Create a function which returns another function.
+- The returned function will receive `dispatch` function as parameter, as if we need to dispatch something inside.
+- The returned function **can be async.**
 
 ```javascript
 // This is a normal action which is created automatically.
@@ -1221,6 +1223,18 @@ const App = () => {
         }, [cart, dispatch]);
 }    
 ```
+
+# Redux Dev Tools
+
+These are extra tools which makes it easier to debug redux and redux states. It's difficult to find erros in  our overall store as our porject grows. It also enables us to jump back to any previous state at a given time which is superuseful.
+
+### How to Install
+
+Just google, Redux dev tools and Install the extension or it's application. Extension is preferred as it's get added to our developer panel on browser.
+
+# React Router
+
+
 
 
 
