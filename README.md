@@ -1233,7 +1233,142 @@ These are extra tools which makes it easier to debug redux and redux states. It'
 Just google, Redux dev tools and Install the extension or it's application. Extension is preferred as it's get added to our developer panel on browser.
 
 # React Router
+## Routing
 
+I am gonna spare the details of why we need routing and it's advantages. Let's directly jump to how can we build a Multi-Page-Application (not really) with React.
+
+### React Router v6 
+
+- All Route should be wrapped with `Routes` component. Even If It's just 1 route.
+- Switch gone, replaced with `<Routes>`
+- Elements needs to be passed as props with `element` key.
+- `exact` prop is gone, as React v6 has better algorithem.
+- `activeClassName` prop is gone from NavLink.
+- NavLink's prop `className` is now special classname, it does not accepts a css anymore but a function
+- In that function, Information about the link and current state is passed to that func by react router.
+- `isActive` property is prevent on that data which is passed, we can check and apply css conditionally.
+
+```javascript
+<NavLink className={ (navData) => {} } to="/products" />
+<NavLink className={(navData) => navData.isActive ? classes.active : ''} to="/products" />
+```
+- `Redirect` component is gone, new `Navigate` component is added.
+- `replace` prop can be added to fully replace page with current one.
+
+```javascript
+<Routes>
+<Route path="/" element={ <Navigate to="/welcome" /> } />
+<Route path="/" element={ <Navigate replace to="/welcome" /> } />
+</Routes>
+```
+- Nested Routes must start with parent route. So add wildcard in the end `/*` of parent route.
+- Doing so, the new algorithem will not match only the exact route but also opens the door for nested routes.
+- In nested paths and Link component, all paths are now relative so we don't need to provide full path while mathcing routes.
+
+```javascript
+<Routes>
+// Wildcard /* in the end enables the door for nested paths.
+<Route path="/welcome/*" element={ <Welcome /> } />
+</Routes>
+
+// Now somewhere in other Component, Welcome in our case.
+<Routes>
+// new-user is basically /welcome/new-user
+    <Route path="new-user" element={ <Welcome /> } />
+</Routes>
+// Link components are relative as well.
+<Link to="new-user">New User</Link> // will open /welcome/new-user 
+```
+
+- Nested routes can be put as children in Routes.
+```javascript
+<Routes>
+<Route path="/welcome/*" element={ <Welcome /> }>
+    // Nested Route. /welcome/new-user
+    <Route path="new-user" element={<p>Hello User</p>} />
+</Route>
+</Routes>
+
+- But adding nested routing that way, How would we tell react router where to insert the data in the component?
+- For that, there's a new component that is `Outlet`
+- Just keeping the <Outlet /> inside the nested component is telling the router where to put the component data in nested route.
+- Sometimes we need to Navigate when certain things happen, like http request is sent, or an action is finished or a button click.
+- Before, `useHistroy` hook  was used to Navigate around but now it's gone. Instead now we have `useNavigate` hook.
+
+```javascript
+import {Link, useNavigate} from 'react-router-dom';
+
+// useNavigate gives us a navigate function or object.
+const navigate = useNavigate();
+
+// to programatically navigate to somewhere using the navigate object. 
+navigate('/welcome'); // but yeah mind it's a component so use it in useEffect or somewhere to avoid Infinite rendering.
+// to redirect
+navigate('/welcome', {replace: true}); // Replaces Navigation stack
+navigate(-1); // We can also pass number for forward or backward navigation.
+// -1 for previous page, -2 for page before-previous page, 1 for forward again. (Navigation stack)
+```
+
+- Promt was used to prevent accidently leaving page if have unsaved changes.
+- But now it's gone, Implement your own logic now or don't upgrade to v6 for now.
+
+
+### Installing React Router
+
+```
+npm i react-router-dom
+```
+
+### Usage
+
+Simply, import `Route` and `Routes` from the `react-router-dom` package.
+
+```javascript
+import { Route, Routes } from 'react-router-dom';
+import Products from './components/Products';
+import Welcome from './components/Welcome';
+import MainHeader from './components/MainHeader';
+
+function App() {
+	return (
+		<div>
+			<MainHeader />
+			<main>
+				<Routes>
+					<Route path="/welcome" element={<Welcome />} />
+					<Route path="/products" element={<Products />} />
+				</Routes>
+			</main>
+		</div>
+	);
+}
+```
+
+Also, Wrap your entire `<App />` component with `BrowserRouter`.
+
+```javascript
+import ReactDOM from 'react-dom';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+
+ReactDOM.render(
+	<BrowserRouter>
+		<App />
+	</BrowserRouter>,
+	document.getElementById('root')
+);
+
+```
+
+# Linking components.
+
+We can link components by using the `Link` component.
+
+```javascript
+import { Link } from 'react-router-dom';
+
+<Link to="/products">Our Products</Link>
+```
 
 
 
