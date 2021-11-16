@@ -1232,6 +1232,8 @@ These are extra tools which makes it easier to debug redux and redux states. It'
 
 Just google, Redux dev tools and Install the extension or it's application. Extension is preferred as it's get added to our developer panel on browser.
 
+***
+
 # React Router
 ## Routing
 
@@ -1360,7 +1362,7 @@ ReactDOM.render(
 
 ```
 
-# Linking components.
+### Linking components.
 
 We can link components by using the `Link` component.
 
@@ -1369,6 +1371,47 @@ import { Link } from 'react-router-dom';
 
 <Link to="/products">Our Products</Link>
 ```
+
+### NavLink
+
+NavLink component is used for navigation, as it provides extra functionality such as giving the active component.
+
+NavLink accepts a function in `className`, and some information about active NavLink is passed. We can utilize that to find out which component is active and mark it as active in css.
+
+```javascript
+<NavLink className={(navData) => navData.isActive ? classes.active : '' } to="/welcome">Welcome</NavLink>
+```
+
+### Nested & Dynamic Routing
+
+Dynamic routing can be setup with colon `:identifier`, which we can later grab inside component.
+
+```javascript
+<Routes>
+	<Route path="/welcome" element={<Welcome />} />
+	<Route path="/products/*" element={<Products />}>
+		// /* enables nested child, it set as property of params object in the component.	
+		// products/product-detail/anyProductID
+		<Route
+			path="product-detail/:productId"
+			element={<ProductDetail />}
+		/>
+	</Route>
+</Routes>
+```
+Now that we have setup a parameter for dynamic routing, we have to access it. So In a component..
+
+```javascript
+import { useParams } from 'react-router-dom';
+
+const ProductDetail = () => {
+	const {productId} = useParams(); // grab the param
+	// do something with param
+	return (<p>{productId}</p>);
+}
+```
+
+
 
 
 
