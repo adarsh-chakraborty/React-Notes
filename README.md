@@ -1263,14 +1263,13 @@ I am gonna spare the details of why we need routing and it's advantages. Let's d
 <Route path="/" element={ <Navigate replace to="/welcome" /> } />
 </Routes>
 ```
-- Nested Routes must start with parent route. So add wildcard in the end `/*` of parent route.
-- Doing so, the new algorithem will not match only the exact route but also opens the door for nested routes.
-- In nested paths and Link component, all paths are now relative so we don't need to provide full path while mathcing routes.
+- Deeply Nested Descendant Routes must start with parent route. So add `*` in the end `/*` of parent route.
+- Descendant Routes means more than one `<Routes>` deep nested in components, they will build on top of the route that rendered them. 
+- In nested paths and Link component, Links that do not start with `/` are relative! so we don't need to provide full path while mathcing routes.
 
 ```javascript
 <Routes>
-// Wildcard /* in the end enables the door for nested paths.
-<Route path="/welcome/*" element={ <Welcome /> } />
+<Route path="/welcome" element={ <Welcome /> } />
 </Routes>
 
 // Now somewhere in other Component, Welcome in our case.
@@ -1290,6 +1289,7 @@ I am gonna spare the details of why we need routing and it's advantages. Let's d
     <Route path="new-user" element={<p>Hello User</p>} />
 </Route>
 </Routes>
+```
 
 - But adding nested routing that way, How would we tell react router where to insert the data in the component?
 - For that, there's a new component that is `Outlet`
@@ -1410,6 +1410,30 @@ const ProductDetail = () => {
 	return (<p>{productId}</p>);
 }
 ```
+
+### Query Parameters
+
+Query Parameters are some special Parameters we can find in the end of URLs. Difference between Params and Query Params is that Params are mandatory where Query can be optional to load the page.
+
+Reading Query Parameters is easy.
+
+We have to use `useLocation` hook from `react-router-dom`.
+
+```javascript
+import {useLocation} from 'react-router-dom';
+
+// In a component
+const location = useLocation();
+const queryParms = new URLSearchParams(location.search);
+// Now we can get the keys from queryParams object using get method.
+const isSorting = queryParams.get('sort');
+
+```
+
+We can use `URLSearchParams()` function to convert the search to a Javascript Object. `URLSearchParams()` is a default Javascript Function available on Browser and nothign React specific.
+
+We can perform various functions on the object such as `delete`, `get`, `has`, `keys` and more, all these functions are available in the `queryParams` object.
+
 
 
 
