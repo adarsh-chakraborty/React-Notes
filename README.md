@@ -1364,7 +1364,9 @@ ReactDOM.render(
 
 ### Linking components.
 
-We can link components by using the `Link` component.
+We can link components by using the `Link` component. 
+Any Path not starting with / is relative.
+Any Path starting with / is absolute. 
 
 ```javascript
 import { Link } from 'react-router-dom';
@@ -1434,8 +1436,70 @@ We can use `URLSearchParams()` function to convert the search to a Javascript Ob
 
 We can perform various functions on the object such as `delete`, `get`, `has`, `keys` and more, all these functions are available in the `queryParams` object.
 
+***
+# Deployment
+
+Steps to deploy react application to Production.
+
+1. Test Code.
+2. Optimize Code.
+3. Build Application for Production.
+4. Upload or Push to Production.
+5. Configure Server
+
+***
+
+# Lazy Loading
+
+The Concept of Lazy Loading is to load certain chunks or part of code only when the code is needed.
+
+So Instead of letting user wait to download the entire js bundle, execute it in order to let browser paint it on the document.
+
+ We can send only the bundle which is required by browser for first paint, and download the rest of the code only when required.
+ 
+ So If the user don't access certain part of the website, the code won't be downloaded either. It makes the Initial code bundle smaller. 
+
+### Implement Lazy Loading
+
+It's easier to Implement when using routes, as we can split our code by routes.
+
+- Remove the regular import statement for the component we want to lazy load.
+- Import `React` from `react`.
+- Create a function with name which is same as component name we need to implement lazyload
+- Call `React.lazy`, which accepts a function and call the functional `import()` statement. 
+- e.g `import("./pathName");`
+
+```javascript
+import React from 'react';
+
+const NewQuote = React.lazy(() => import('./components/pages/NewQuote.js'));
+
+```
+
+Now, we are downloading the code when it's needed but the problem with that is it can take some time while downloading, that's why we need some fallbackUI or fallback Content while the react is working on rendering.
+
+This fallbackUI is called `Suspense Component`. It's a special component provided by React itself.
+
+- Import Suspense
+- We need to wrap the code in Suspense where we use react lazy component, and give it a fallback prop.
+- Fallback wants JSX code, It can be anything from a Loading Spinner to Loading text.
 
 
+```javascript
+import {React, Suspense} from 'react';
+
+// Component
+const App = (props) => {
+    return (
+        <Suspense fallback={<div className="centered">Loading..</div>}>
+            <Routes>
+               <Route path="/quote" element={<NewQuote />}>
+            </Routes>
+        </Suspense>
+            
+        ) // Resolves Dynamically
+}
+```
 
 
 
