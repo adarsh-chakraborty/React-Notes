@@ -1500,6 +1500,107 @@ const App = (props) => {
         ) // Resolves Dynamically
 }
 ```
+***
+# Authentication
+
+We will often have certain areas of website, that requires user to sign up & login.
+
+### Need of authentication
+
+We need authentication in a website because some content must be protected, not all users and visitors of the website should be able to access all the content.
+
+### How authentication work
+
+- Get access / permission
+- Access the protected resource.
+
+ ### Simulating Authentication with Firebase
+
+ First of all enable E-mail Authentication on Firebase.
+ 
+ We can use fetch to send Requests to Firebase Rest End points and store the `idToken` somewhere in our react application where all component can have access to it.
+
+ For that to work, We need setup a app-wide state. We learned for managing app-wide state we have two approches.
+
+ - Context API 
+ - Redux
+
+ We're gonna setup Context API here, as it is lightweight and no need to install an extra dependency.
+
+ ### Setting up Context API 
+
+- Create a folder in src to manage the context store. `store` is preferred name.
+- Create a new .js file, name should be related to the context we 're gonna store. `kebab-case` naming convention is prefered. e.g `auth-context.js`
+- Setup the required functions and Initial value in the file.
+
+```javascript
+// import react
+import React, { useState } from 'react';
+
+const AuthContext = React.createContext({
+	token: '',
+	isLoggedIn: false,
+	login: (token) => {},
+	logout: () => {}
+});
+
+// named export
+export const AuthContextProvider = (props) => {
+	// It is the component where we need to manage the state for the context.
+
+	const [token, setToken] = useState(null);
+	const userIsLoggedIn = !!token; // converts to boolean
+
+	const loggedInHandler = (tokenId) => {
+		setToken(tokenId);
+	};
+
+	const logOutHandler = () => {
+		setToken(null);
+	};
+
+	const contextValue = {
+		token,
+		isLoggedIn: userIsLoggedIn,
+		login: loggedInHandler,
+		logout: logOutHandler
+	};
+	return <AuthContext.Provider value={contextValue}>{props.children}</AuthContext.Provider>;
+};
+
+export default AuthContext;
+```
+
+- and, Remember the wrap the entire app with `{ AuthContextProvider }` component.
+- After wrapping the <App /> with AuthContextProvider component, we can use it in our app.
+
+### Using the Context in component.
+
+In any component, where we need to access the context.
+
+- Import `useContext` hook from react.
+- Import the Context file.
+
+Use the `useContext` hook, pass it the Context import. (AuthContext). It will return the context (Ctx)
+
+```javascript
+import {useContext} from 'react';
+import AuthContext from '../../store/auth-contet.js';
+
+const someComponent = (props) => {
+    const authCtx = useContext(AuthContext);
+
+    // Do something with authCtx
+
+    authCtx.logout();
+    authCtx.login('SomeToken');
+    const isLoggedIn = authCtx.isLoggedIn;
+    return (isLoggedIn && (<p>You are logged in</p>))
+}
+```
+
+### Accessing protected resources with token.
+
 
 
 
