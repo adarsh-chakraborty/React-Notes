@@ -1601,7 +1601,126 @@ const someComponent = (props) => {
 
 ### Accessing protected resources with token.
 
+We can import & useContext to get the token and send requests with attached token.
+
+Where to put the token on request varies with APIs, It can be some Authorization Bearer token, a query or a custom header.
+
+Here we are attaching it in body with a idToken property as Firebase requires it.
+
+```javascript
+import { useRef, useContext } from 'react';
+
+import AuthContext from '../../store/auth-context';
+
+const ProfileForm = () => {
+	
+	const authCtx = useContext(AuthContext);
+
+	const submitHandler = (e) => {
+		e.preventDefault();
+
+		const enteredPassword = passwordRef.current.value;
+		// add validation
+		if (enteredPassword.trim().length < 6) return;
+
+		fetch(
+			'https://identitytoolkit.googleapis.com/v1/accounts:update?key=AIzaSyDWE6kVxzGwHlj0O1exfep_tmdwelX1CUU',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					idToken: authCtx.token,
+					password: enteredPassword,
+					returnSecureToken: false
+				})
+			}
+		)
+			.then((response) => {
+                // Got the token, Redirect (with replace) the user.
+            })
+			.catch((e) => console.log(e.message));
+	};
+	return (/* jsx */);
+};
+
+export default ProfileForm;
+```
+
+### Logging out 
+
+We don't need to send any request to server to logout as with token approach, the server doesn't care about logged in clients.
+
+The token would expire in some time anyway, So clearing our state which holds the token in the context to null or empty string is enough.
+
+### Protected Pages
+
+As we know, we don't wanna to serve all the content to all the visitors Instead we want to serve content conditionally.
 
 
+To prevent users accessing the routes by directly entering the url in the address bar, we can setup a custom ProtectedRoute Component. 
 
+For example, to prevent this secret route, we can check the isLogged from context and render it conditionally. So it is only rendered to the logged in users.
+```javascript
+// import useContext and AuthContext;
 
+const PrivateRoute = (props) => {
+  const ctx = useContext(AuthContext);
+  // If IsLoggedIn, give the component else redirect
+  return ctx.isLoggedIn ? props.children : <Navigate to="/login" />;
+}
+
+const App = (props) => {
+   return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Public />} />
+        <Route
+          path="/secret"
+          element={
+            <PrivateRoute>
+              <SecretComponent />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  ); 
+}
+```
+
+### Persisting Authentication
+
+In our current state of application, the context is lost on reload, to prevent this type of behavior we need to add some kind of Persisting storage.
+
+To ensure user stays logged-in for a certain amount of time we need to save the token outside of react state.
+
+First of all, we can save the token to localStorage whenever we receive a token, and clear the token whenever logout function is called.
+
+And also, we need our app to read from localStorage if it has a token when the app starts. So we can set the initial State of token state to read from localStorage as *`localStorage` is synchronous API`.*
+
+```javascript
+    // context.js
+    const initialToken = localStorage.getItem('token') ?? null;
+	const [token, setToken] = useState(initialToken);
+
+	const loggedInHandler = (tokenId) => {
+		setToken(tokenId);
+		localStorage.setItem('token', tokenId);
+	};
+
+	const logOutHandler = () => {
+		setToken(null);
+		localStorage.removeItem('token');
+	};
+
+```
+
+### Logging out user automatically
+
+Almost all tokens expires in certain time, so too should log-out user if the expiration time meets the current time.
+
+To Survive the reloads, we need to put the expiration time with token, in localStorage.
+
+Then, We can simply compare the expiration time and current time, and set a timer on app start.
