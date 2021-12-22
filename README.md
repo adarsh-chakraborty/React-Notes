@@ -217,6 +217,10 @@ ctx.isLoggedIn,ctx.onLogout,ctx.onLogin to be used or passed to dom elements.
 
 - Not Optimized for high frequency changes. (Multiple times per second)
 - It's shouldn't be replaced with all components.
+- ContextAPI has no way of knowing which data is changed and handle component re-render accordingly.
+- Hence, Context API repaints all components when context changes.
+- So, all components that uses it gets re-rendered. So performance can be effected.
+
 
 ***
 
@@ -776,7 +780,7 @@ React context is a built-in feature of React, to share data across app. Redux so
 
 - Managing context is quite complex, we can endup with nested JSX context providers.
 - If not that we can surely endup with a large context that cares about everything (Auth, Cart, User etc).
-- Another potential disadvantages is performance, It's not optimized for high frequency changes. (e.g. Input)
+- Another potential disadvantage of Context API can be performance, It's not optimized for high frequency changes. (e.g. Input)
 
 ### How Redux works
 
