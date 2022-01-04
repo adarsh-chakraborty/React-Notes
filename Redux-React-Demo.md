@@ -1,6 +1,6 @@
-# Reducer
+# Redux
 
-![Redux](https://labs.tadigital.com/wp-content/uploads/2020/04/getting-started-with-redux-1096x453.png)
+![Redux](https://i.postimg.cc/XvG3rCjn/getting-started-with-redux-1096x453.png)
 
 # Install & Use Redux in your react project.
 
